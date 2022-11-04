@@ -1,10 +1,8 @@
-# listing_service
-This repo is for listing microservice for F22 6156 CC Team.
+# Listing MicroService
+
+## Introduction
+
+This is a simple Flask based microservice for listing
 
 
 
-# How to build and run locally
-
-
-
-# How to deploy
