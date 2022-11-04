@@ -241,6 +241,7 @@ def test_user_contact():
         print("\n\n Epic, Epic, Epic Fail. Exception = ", e, "\n\n")
         print("\n")
 
+# TODO test application
 
 if __name__ == "__main__":
     test_health()
