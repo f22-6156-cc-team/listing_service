@@ -1,5 +1,5 @@
 # from models.BaseModel import Base, BaseQueryModel
-from src.models.BaseModel import BaseQueryModel, Base
+from .BaseModel import BaseQueryModel, Base
 
 
 class Listing(Base):

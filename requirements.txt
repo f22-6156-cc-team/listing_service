@@ -2,6 +2,5 @@ flask
 flask-cors
 requests
 pymysql
-email-validator
-phonenumbers
 sqlalchemy
+python-dotenv

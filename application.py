@@ -7,7 +7,7 @@ from flask_cors import CORS
 from models.Listing import ListingQueryModel
 
 # Create the Flask application object.
-app = Flask(__name__)
+application = app = Flask(__name__)
 
 CORS(app)
 
@@ -158,4 +158,4 @@ def serialize(listings):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=False)
