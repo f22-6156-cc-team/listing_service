@@ -11,7 +11,6 @@ CREATE TABLE listing.listing
     current_residents_num  INT          NOT NULL,
     total_residents_num    INT          NULL,
     author_user_id         INT          NOT NULL,
-    listing_description_id INT          NOT NULL,
     # below are listing descriptions
     location_area          VARCHAR(256) NOT NULL,
     start_date             DATE         NOT NULL,
