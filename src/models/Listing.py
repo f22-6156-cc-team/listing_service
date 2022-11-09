@@ -1,4 +1,4 @@
-from BaseModel import Base, BaseQueryModel
+from models.BaseModel import Base, BaseQueryModel
 
 
 class Listing(Base):

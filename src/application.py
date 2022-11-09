@@ -13,6 +13,7 @@ CORS(app)
 
 
 @app.get("/api/health")
+@app.get("/")
 def get_health():
     t = str(datetime.now())
     msg = {
@@ -87,4 +88,5 @@ def listing_info_id(lid):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5011)
+    app.run(host="0.0.0.0", port=5011, debug=True)
+

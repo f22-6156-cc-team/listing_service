@@ -1,6 +1,9 @@
 drop database if exists listing;
 create database listing;
 
+# API Documentation is here:
+# https://github.com/f22-6156-cc-team/f22_cc_api_doc/blob/main/listing_api_v1.yaml
+
 drop table if exists listing.listing;
 CREATE TABLE listing.listing
 (
@@ -30,32 +33,3 @@ CREATE TABLE listing.listing
 
 CREATE UNIQUE INDEX listing_listing_id_uindex
     ON listing.listing (listing_id);
-
-# CREATE TABLE listing.listing_description
-# (
-#     listing_description_id INT          NOT NULL,
-#     listing_id             INT          NOT NULL,
-#     location_area          VARCHAR(256) NOT NULL,
-#     start_date             DATE         NOT NULL,
-#     end_date               DATE         NOT NULL,
-#     listing_total_size     INT          NOT NULL,
-#     listing_size           INT          NOT NULL,
-#     floor                  INT          NULL,
-#     has_elevator           BOOLEAN      NULL,
-#     is_pet_friendly        BOOLEAN      NULL,
-#     is_smoking_friendly    BOOLEAN      NULL,
-#     washer_dryer_location  VARCHAR(256) NULL,
-#     has_maintenance        BOOLEAN      NULL,
-#     has_gym                BOOLEAN      NULL,
-#     CONSTRAINT listing_description_pk
-#         PRIMARY KEY (listing_id)
-# );
-#
-# CREATE UNIQUE INDEX listing_description_listing_id_uindex
-#     ON listing.listing_description (listing_id);
-#
-#
-#
-# alter table listing.listing
-#     add constraint listing_listing_description_null_null_fk
-#         foreign key (listing_id, listing_description_id) references listing.listing_description (listing_id, listing_description_id);
