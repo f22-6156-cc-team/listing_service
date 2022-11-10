@@ -30,24 +30,31 @@ def get_health():
 
 @app.route("/api/listings", methods=["GET"])
 def get_all_listings():
-    with ListingQueryModel as lqm:
-        listings = lqm.get_all_listing()
-        rsp = Response(json.dumps(listings), status=200,
-                       content_type="application/json")
+    try:
+        with ListingQueryModel() as lqm:
+            listings = lqm.get_all_listing()
+            listings = serialize(listings)
+            rsp = Response(json.dumps(listings), status=200,
+                           content_type="application/json")
+            return rsp
+    except Exception as e:
+        print(str(e))
+        rsp = Response("internal server error " + str(e), status=500,
+                       content_type="text/plain")
         return rsp
 
 
 @app.route("/api/listing/<lid>", methods=["GET", "POST", "PUT", "DELETE"])
 def listing_info_id(lid):
     def get_listing_by_id(lid):
-        with ListingQueryModel as lqm:
+        with ListingQueryModel() as lqm:
             return lqm.get_listing_by_id(lid)
 
     try:
         if request.method == "GET":
             listing = get_listing_by_id(lid)
             if listing:
-                rsp = Response(json.dumps(listing), status=200,
+                rsp = Response(json.dumps(serialize(listing)), status=200,
                                content_type="application/json")
                 return rsp
             else:
@@ -57,26 +64,26 @@ def listing_info_id(lid):
 
         elif request.method == "POST" or request.method == "PUT":
             listing_info = request.get_json()
-            if request.method == "POST":
-                ListingQueryModel.add_user_contacts_by_user_id(lid, listing_info)
-            else:
-                ListingQueryModel.update_user_contacts_by_user_id(lid, listing_info)
+            with ListingQueryModel() as lqm:
+                if request.method == "POST":
+                    lqm.add_listing_by_id(lid=lid, listing_info=listing_info)
+                else:
+                    lqm.update_listing_by_id(lid=lid, listing_info=listing_info)
 
-            listing = get_listing_by_id(lid)
-
-            rsp = Response(json.dumps(listing), status=200,
-                           content_type="application/json")
-            return rsp
+                listing = get_listing_by_id(lid)
+                rsp = Response(json.dumps(serialize(listing)), status=200,
+                               content_type="application/json")
+                return rsp
 
         elif request.method == "DELETE":
             listing = get_listing_by_id(lid)
             if listing:
-                ListingQueryModel.delete_listing_by_id(lid)
-                rsp = Response("ok", status=200,
+                ListingQueryModel().delete_listing_by_id(lid)
+                rsp = Response("listing with lid {} is successfully deleted.".format(lid), status=200,
                                content_type="application/json")
                 return rsp
             else:
-                rsp = Response("user not found", status=404,
+                rsp = Response("listing with lid {} not found".format(lid), status=404,
                                content_type="text/plain")
                 return rsp
     except Exception as e:
@@ -87,6 +94,68 @@ def listing_info_id(lid):
     pass
 
 
+def serialize(listings):
+    # helper method to serialize listings
+    ls = listings
+    SINGLE = False
+    if not isinstance(listings, list):
+        ls = [listings]
+        SINGLE = True
+    res = []
+    ts = '2023/11/22'
+    f = '%Y/%m/%d'
+    datetime.strptime(ts, f)
+    for l in ls:
+        r = {
+            "listing_id": l.listing_id,
+            "is_active": l.is_active,
+            "listing_name": l.listing_name,
+            "listing_address": l.listing_address,
+            "current_residents_num": l.current_residents_num,
+            "total_residents_num": l.total_residents_num,
+            "author_user_id": l.author_user_id,
+            "price": l.price,
+            "location_area": l.location_area,
+            "start_date": l.start_date.strftime(f),
+            "end_date": l.end_date.strftime(f),
+            "listing_total_size": l.listing_total_size,
+            "listing_size": l.listing_size,
+            "floor": l.floor,
+            "has_elevator": l.has_elevator,
+            "is_pet_friendly": l.is_pet_friendly,
+            "is_smoking_friendly": l.is_smoking_friendly,
+            "washer_dryer_location": l.washer_dryer_location,
+            "has_maintenance": l.has_maintenance,
+            "has_gym": l.has_gym
+
+        }
+        if SINGLE:
+            return r
+        res.append({
+            "listingId": l.listing_id,
+            "isActive": l.is_active,
+            "listingName": l.listing_name,
+            "listingAddress": l.listing_address,
+            "currentResidentsNum": l.current_residents_num,
+            "totalResidentsNum": l.total_residents_num,
+            "authorUserId": l.author_user_id,
+            "price": l.price,
+            "locationArea": l.location_area,
+            "startDate": l.start_date.strftime(f),
+            "endDate": l.end_date.strftime(f),
+            "listingTotalSize": l.listing_total_size,
+            "listingSize": l.listing_size,
+            "floor": l.floor,
+            "hasElevator": l.has_elevator,
+            "isPetFriendly": l.is_pet_friendly,
+            "isSmokingFriendly": l.is_smoking_friendly,
+            "washerDryerLocation": l.washer_dryer_location,
+            "hasMaintenance": l.has_maintenance,
+            "hasGym": l.has_gym
+
+        })
+    return res
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5011, debug=True)
-

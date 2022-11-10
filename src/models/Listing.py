@@ -1,4 +1,5 @@
-from models.BaseModel import Base, BaseQueryModel
+# from models.BaseModel import Base, BaseQueryModel
+from src.models.BaseModel import BaseQueryModel, Base
 
 
 class Listing(Base):
@@ -17,6 +18,8 @@ class ListingQueryModel(BaseQueryModel):
         return l
 
     def add_listing_by_id(self, lid, listing_info=None):
+        print("lid : {}".format(lid))
+        # print("lid : %d" % lid)
         inactive_listing = self.session.query(Listing).filter(
             Listing.listing_id == lid).filter(Listing.is_active == False).first()
         if inactive_listing:
@@ -30,6 +33,7 @@ class ListingQueryModel(BaseQueryModel):
                 listing_id=lid,
                 is_active=True
             )
+            print("no inactive listing!")
             if listing_info:
                 for key, value in listing_info.items():
                     setattr(l, key, value)
@@ -37,11 +41,11 @@ class ListingQueryModel(BaseQueryModel):
             self.session.commit()
 
     def update_listing_by_id(self, lid, listing_info=None):
-        user_contact = self.session.query(Listing).filter(
+        listing = self.session.query(Listing).filter(
             Listing.listing_id == lid).filter(Listing.is_active == True).first()
         if listing_info:
             for key, value in listing_info.items():
-                setattr(user_contact, key, value)
+                setattr(listing, key, value)
         self.session.commit()
 
     def delete_listing_by_id(self, lid):
