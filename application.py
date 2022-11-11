@@ -131,29 +131,7 @@ def serialize(listings):
         }
         if SINGLE:
             return r
-        res.append({
-            "listingId": l.listing_id,
-            "isActive": l.is_active,
-            "listingName": l.listing_name,
-            "listingAddress": l.listing_address,
-            "currentResidentsNum": l.current_residents_num,
-            "totalResidentsNum": l.total_residents_num,
-            "authorUserId": l.author_user_id,
-            "price": l.price,
-            "locationArea": l.location_area,
-            "startDate": l.start_date.strftime(f),
-            "endDate": l.end_date.strftime(f),
-            "listingTotalSize": l.listing_total_size,
-            "listingSize": l.listing_size,
-            "floor": l.floor,
-            "hasElevator": l.has_elevator,
-            "isPetFriendly": l.is_pet_friendly,
-            "isSmokingFriendly": l.is_smoking_friendly,
-            "washerDryerLocation": l.washer_dryer_location,
-            "hasMaintenance": l.has_maintenance,
-            "hasGym": l.has_gym
-
-        })
+        res.append(r)
     return res
 
 
