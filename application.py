@@ -3,8 +3,23 @@ from datetime import datetime
 
 from flask import Flask, Response, request
 from flask_cors import CORS
-
+import re
 from models.Listing import ListingQueryModel
+
+camel_pat = re.compile(r'([A-Z])')
+under_pat = re.compile(r'_([a-z])')
+
+def camel_to_underscore(name):
+    return camel_pat.sub(lambda x: '_' + x.group(1).lower(), name)
+def underscore_to_camel(name):
+    return under_pat.sub(lambda x: x.group(1).upper(), name)
+def convert_json(d, convert):
+    # takes a json and a convert function
+    # returns the transformed json
+    new_d = {}
+    for k, v in d.items():
+        new_d[convert(k)] = convert_json(v,convert) if isinstance(v,dict) else v
+    return new_d
 
 # Create the Flask application object.
 application = app = Flask(__name__)
@@ -34,6 +49,8 @@ def get_all_listings():
         with ListingQueryModel() as lqm:
             listings = lqm.get_all_listing()
             listings = serialize(listings)
+            # print(listings)
+            listings = [convert_json(l, underscore_to_camel) for l in listings]
             rsp = Response(json.dumps(listings), status=200,
                            content_type="application/json")
             return rsp
@@ -54,8 +71,10 @@ def listing_info_id(lid):
         if request.method == "GET":
             listing = get_listing_by_id(lid)
             if listing:
-                rsp = Response(json.dumps(serialize(listing)), status=200,
-                               content_type="application/json")
+                rsp = Response(
+                    json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
+                    status=200,
+                    content_type="application/json")
                 return rsp
             else:
                 rsp = Response("listing not found", status=404,
@@ -63,16 +82,18 @@ def listing_info_id(lid):
                 return rsp
 
         elif request.method == "POST" or request.method == "PUT":
-            listing_info = request.get_json()
+            listing_info = convert_json(request.get_json(), camel_to_underscore)
             with ListingQueryModel() as lqm:
                 if request.method == "POST":
-                    lqm.add_listing_by_id(lid=lid, listing_info=listing_info)
+                    lqm.add_listing_by_id(lid, listing_info)
                 else:
-                    lqm.update_listing_by_id(lid=lid, listing_info=listing_info)
+                    lqm.update_listing_by_id(lid, listing_info)
 
                 listing = get_listing_by_id(lid)
-                rsp = Response(json.dumps(serialize(listing)), status=200,
-                               content_type="application/json")
+                rsp = Response(
+                    json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
+                    status=200,
+                    content_type="application/json")
                 return rsp
 
         elif request.method == "DELETE":
