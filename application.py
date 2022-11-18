@@ -5,6 +5,8 @@ from flask import Flask, Response, request
 from flask_cors import CORS
 import re
 from models.Listing import ListingQueryModel
+import boto3
+import os
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
@@ -25,7 +27,16 @@ def convert_json(d, convert):
 application = app = Flask(__name__)
 
 CORS(app)
-
+def send_new_listing_notif(lid):
+    message = "New Listing {} just came up! Check it out!".format(lid)
+    client = boto3.client('sns')
+    response = client.publish(
+        TargetArn=os.environ.get("SNS_ARN"),
+        Message=json.dumps({'default': json.dumps(message)}),
+        MessageStructure='json'
+    )
+    print(response)
+    pass
 
 @app.get("/api/health")
 @app.get("/")
@@ -99,10 +110,11 @@ def listing_info_id(lid):
         elif request.method == "DELETE":
             listing = get_listing_by_id(lid)
             if listing:
-                ListingQueryModel().delete_listing_by_id(lid)
-                rsp = Response("listing with lid {} is successfully deleted.".format(lid), status=200,
+                with ListingQueryModel() as lqm:
+                    lqm.delete_listing_by_id(lid)
+                    rsp = Response("listing with lid {} is successfully deleted.".format(lid), status=200,
                                content_type="application/json")
-                return rsp
+                    return rsp
             else:
                 rsp = Response("listing with lid {} not found".format(lid), status=404,
                                content_type="text/plain")

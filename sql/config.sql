@@ -38,7 +38,13 @@ INSERT INTO listing.listing (listing_id, is_active, listing_name, listing_addres
                              is_smoking_friendly, washer_dryer_location, has_maintenance, has_gym)
 VALUES (1, true, 'listing A', 'test address A', 2, 4, 1, 1000, '10027', '2022/11/11', '2023/11/11', 3000, 1000, 2, true,
         true, true, '2nd floor', true, true),
-       (2, true, 'listing B', 'test address B', 3, 7, 2, 3000, '10025', '2022/10/10', '2023/10/10', 500, 400, 9, true,
+        (2, true, 'listing B', 'test address B', 3, 7, 2, 3000, '10025', '2022/10/10', '2023/10/10', 500, 400, 9, true,
+        false, true, 'NA', true, true),
+        (3, true, 'listing B', 'test address C', 3, 7, 2, 3000, '10025', '2022/10/10', '2023/10/10', 500, 400, 9, true,
+        false, true, 'NA', true, true),
+        (4, true, 'listing B', 'test address D', 3, 7, 2, 3000, '10025', '2022/10/10', '2023/10/10', 500, 400, 9, true,
+        false, true, 'NA', true, true),
+        (5, true, 'listing B', 'test address B', 3, 7, 2, 3000, '10025', '2022/10/10', '2023/10/10', 500, 400, 9, true,
         false, true, 'NA', true, true);
 
 CREATE UNIQUE INDEX listing_listing_id_uindex

@@ -18,7 +18,7 @@ class ListingQueryModel(BaseQueryModel):
         return l
 
     def add_listing_by_id(self, lid, listing_info=None):
-        print("lid : {}".format(lid))
+        # print("lid : {}".format(lid))
         # print("lid : %d" % lid)
         inactive_listing = self.session.query(Listing).filter(
             Listing.listing_id == lid).filter(Listing.is_active == False).first()
