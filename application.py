@@ -25,14 +25,15 @@ def convert_json(d, convert):
 
 # Create the Flask application object.
 application = app = Flask(__name__)
+SNS_CLIENT = boto3.client('sns', region_name='us-east-1')
 
 CORS(app)
 def send_new_listing_notif(lid):
+    # sends a notification to SNS on new listing created
     message = "New Listing {} just came up! Check it out!".format(lid)
-    client = boto3.client('sns')
-    response = client.publish(
+    response = SNS_CLIENT.publish(
         TargetArn=os.environ.get("SNS_ARN"),
-        Message=json.dumps({'default': json.dumps(message)}),
+        Message=json.dumps({'default': message}),
         MessageStructure='json'
     )
     print(response)
@@ -99,7 +100,8 @@ def listing_info_id(lid):
                     lqm.add_listing_by_id(lid, listing_info)
                 else:
                     lqm.update_listing_by_id(lid, listing_info)
-
+                # send SNS
+                send_new_listing_notif(lid)
                 listing = get_listing_by_id(lid)
                 rsp = Response(
                     json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
