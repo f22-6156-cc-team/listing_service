@@ -25,15 +25,10 @@ use listing;
 SHOW TABLES;
 SELECT * FROM listing;
 ```
-## Deps
-```bash
-python3 -m pip install -r requirements.txt
-```
 
 ## How to build and run locally
-1. set up DB configs in `.env`
-1. execute script `sql/config.sql` to initialize the database
-2. run `export FLASK_APP=application`
+1. install deps `python3 -m pip install -r requirements.txt`
+2. execute script `sql/config.sql` to initialize the database
 3. run `flask run`
 
 The application should be running on `localhost:5000`.

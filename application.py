@@ -72,8 +72,25 @@ def get_all_listings():
                        content_type="text/plain")
         return rsp
 
+@app.route("/api/listings", methods=["POST"])
+def create_listing():
+    try:
+        listing_info = convert_json(request.get_json(), camel_to_underscore)
+        with ListingQueryModel() as lqm:
+            listing = lqm.add_listing(listing_info)
+            rsp = Response(
+                json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
+                status=200,
+                content_type="application/json")
+            return rsp
+    except Exception as e:
+        print(str(e))
+        rsp = Response("internal server error " + str(e), status=500,
+                       content_type="text/plain")
+        return rsp
 
-@app.route("/api/listing/<lid>", methods=["GET", "POST", "PUT", "DELETE"])
+
+@app.route("/api/listing/<lid>", methods=["GET", "PUT", "DELETE"])
 def listing_info_id(lid):
     def get_listing_by_id(lid):
         with ListingQueryModel() as lqm:
@@ -93,13 +110,12 @@ def listing_info_id(lid):
                                content_type="text/plain")
                 return rsp
 
-        elif request.method == "POST" or request.method == "PUT":
+        elif request.method == "PUT":
             listing_info = convert_json(request.get_json(), camel_to_underscore)
             with ListingQueryModel() as lqm:
-                if request.method == "POST":
-                    lqm.add_listing_by_id(lid, listing_info)
-                else:
-                    lqm.update_listing_by_id(lid, listing_info)
+                lqm.update_listing_by_id(lid, listing_info)
+                
+                # FIXME: should not send in development
                 # send SNS
                 send_new_listing_notif(lid)
                 listing = get_listing_by_id(lid)
@@ -171,4 +187,4 @@ def serialize(listings):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=7001, debug=True)

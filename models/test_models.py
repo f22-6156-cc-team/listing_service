@@ -9,7 +9,8 @@ if __name__ == '__main__':
     uid = '18'
     lid = '19'
     lqm = ListingQueryModel()
-    lqm.add_listing_by_id(lid, {
+
+    lqm.add_listing({
         "is_active": True,
         "listing_name": "test",
         "listing_address": "123 test St",
