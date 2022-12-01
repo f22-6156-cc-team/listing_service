@@ -10,7 +10,7 @@ class Listing(Base):
 class ListingQueryModel(BaseQueryModel):
 
     def get_all_listing(self):
-        return self.session.query(Listing).all()
+        return self.session.query(Listing).filter(Listing.is_active == True).all()
 
     def get_listing_by_id(self, lid):
         l = self.session.query(Listing).filter(
@@ -19,7 +19,6 @@ class ListingQueryModel(BaseQueryModel):
 
     def get_last_listing_id(self):
         l = self.session.query(Listing).order_by(Listing.listing_id.desc()).first()
-        print('iiii', l.listing_id)
         return l.listing_id
 
     def add_listing(self, listing_info=None):
