@@ -1,6 +1,6 @@
 # from models.BaseModel import Base, BaseQueryModel
 from .BaseModel import BaseQueryModel, Base
-
+from sqlalchemy import Column, Integer
 
 class Listing(Base):
     __tablename__ = 'listing'
@@ -17,28 +17,40 @@ class ListingQueryModel(BaseQueryModel):
             Listing.listing_id == lid).filter(Listing.is_active == True).first()
         return l
 
-    def add_listing_by_id(self, lid, listing_info=None):
+    def get_last_listing_id(self):
+        l = self.session.query(Listing).order_by(Listing.listing_id.desc()).first()
+        print('iiii', l.listing_id)
+        return l.listing_id
+
+    def add_listing(self, listing_info=None):
         # print("lid : {}".format(lid))
         # print("lid : %d" % lid)
-        inactive_listing = self.session.query(Listing).filter(
-            Listing.listing_id == lid).filter(Listing.is_active == False).first()
-        if inactive_listing:
-            inactive_listing.is_active = True
-            if listing_info:
-                for key, value in listing_info.items():
-                    setattr(inactive_listing, key, value)
-            self.session.commit()
-        else:
-            l = Listing(
-                listing_id=lid,
-                is_active=True
-            )
-            print("no inactive listing!")
-            if listing_info:
-                for key, value in listing_info.items():
-                    setattr(l, key, value)
-            self.session.add(l)
-            self.session.commit()
+
+        # FIXME: why update an existed listing in creating method
+        # inactive_listing = self.session.query(Listing).filter(
+        #     Listing.listing_id == lid).filter(Listing.is_active == False).first()
+        # if inactive_listing:
+        #     inactive_listing.is_active = True
+        #     if listing_info:
+        #         for key, value in listing_info.items():
+        #             setattr(inactive_listing, key, value)
+        #     self.session.commit()
+        # else:
+
+        # FIXME: not a secure way to get latest listing id
+        listing_id = self.get_last_listing_id() + 1
+        l = Listing(
+            listing_id=listing_id,
+            is_active=True
+        )
+        
+        if listing_info:
+            for key, value in listing_info.items():
+                setattr(l, key, value)
+        self.session.add(l)
+        self.session.commit()
+        return l
+
 
     def update_listing_by_id(self, lid, listing_info=None):
         listing = self.session.query(Listing).filter(

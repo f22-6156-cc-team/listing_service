@@ -1,5 +1,4 @@
 listing_service.code-workspace
-.env
 py.env
 sql/.
 sql

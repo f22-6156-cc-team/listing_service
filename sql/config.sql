@@ -7,7 +7,7 @@ create database listing;
 drop table if exists listing.listing;
 CREATE TABLE listing.listing
 (
-    listing_id            INT          NOT NULL,
+    listing_id            INT          NOT NULL auto_increment,
     is_active             BOOLEAN      NOT NULL,
     listing_name          VARCHAR(256) NOT NULL,
     listing_address       VARCHAR(256) NOT NULL,
