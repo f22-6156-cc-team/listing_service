@@ -26,6 +26,10 @@ SHOW TABLES;
 SELECT * FROM listing;
 ```
 
+## About Listing service
+1. get all listings api does not require authentication to verify consistency between users, but still need to provide a valid access token
+2. For C,U,D on specific listing, authentication is needed so that only owner of listing can make changes. To get the listing, a valid access token suffices. 
+
 ## How to build and run locally
 1. install deps `python3 -m pip install -r requirements.txt`
 2. execute script `sql/config.sql` to initialize the database
@@ -34,6 +38,7 @@ SELECT * FROM listing;
 The application should be running on `localhost:5000`.
 
 ## How to deploy
+1. Run `eb deploy`.
 Listing microservice is deployed on AWS elasticBeanstalk, and its database is using RDS.
 
 ## Some important debugging tips about deploying
