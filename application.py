@@ -31,9 +31,9 @@ CORS(app)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 jwt = JWTManager(application)
 
-def send_new_listing_notif(lid):
+def send_new_listing_notif(listing):
     # sends a notification to SNS on new listing created
-    message = "New Listing {} just came up! Check it out!".format(lid)
+    message = "New Listing {} just came up! Check it out! Only with ${}".format(listing.listing_id, listing.price)
     response = SNS_CLIENT.publish(
         TargetArn=os.environ.get("SNS_ARN"),
         Message=json.dumps({'default': message}),
@@ -83,6 +83,9 @@ def create_listing():
         listing_info = convert_json(request.get_json(), camel_to_underscore)
         with ListingQueryModel() as lqm:
             listing = lqm.add_listing(listing_info)
+            # FIXME: should not send in development
+            # send SNS
+            send_new_listing_notif(listing)
             rsp = Response(
                 json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
                 status=200,
@@ -101,20 +104,18 @@ def listing_info_id(lid):
     def get_listing_by_id(lid):
         with ListingQueryModel() as lqm:
             return lqm.get_listing_by_id(lid)
-
     try:
-        listing = get_listing_by_id(lid)
-        if listing:
-            listing_uid = listing.author_user_id
-            current_uid = get_jwt_identity()
-            # print("listing_uid : {}".format(listing_uid))
-            # print("curr_uid : {}".format(current_uid))
-            if listing_uid != current_uid:
-                return Response("Inconsistent user", status=401,
-                            content_type="text/plain")
-        else:
-            return Response("listing not found", status=404,
-                               content_type="text/plain")
+        current_uid = get_jwt_identity()
+        # listing = get_listing_by_id(lid)
+        # if listing:
+        #     listing_uid = listing.author_user_id
+        #     current_uid = get_jwt_identity()
+        #     if listing.author_user_id != current_uid:
+        #         return Response("Inconsistent user", status=401,
+        #                     content_type="text/plain")
+        # else:
+        #     return Response("listing not found", status=404,
+        #                        content_type="text/plain")
         
         if request.method == "GET":
             listing = get_listing_by_id(lid)
@@ -133,11 +134,10 @@ def listing_info_id(lid):
             listing_info = convert_json(request.get_json(), camel_to_underscore)
             with ListingQueryModel() as lqm:
                 lqm.update_listing_by_id(lid, listing_info)
-                
-                # FIXME: should not send in development
-                # send SNS
-                send_new_listing_notif(lid)
                 listing = get_listing_by_id(lid)
+                if listing.author_user_id != current_uid:
+                    return Response("Inconsistent user", status=401,
+                                content_type="text/plain")
                 rsp = Response(
                     json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
                     status=200,
@@ -147,6 +147,9 @@ def listing_info_id(lid):
         elif request.method == "DELETE":
             listing = get_listing_by_id(lid)
             if listing:
+                if listing.author_user_id != current_uid:
+                    return Response("Inconsistent user", status=401,
+                                content_type="text/plain")
                 with ListingQueryModel() as lqm:
                     lqm.delete_listing_by_id(lid)
                     rsp = Response("listing with lid {} is successfully deleted.".format(lid), status=200,
