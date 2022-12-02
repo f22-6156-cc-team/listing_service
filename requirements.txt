@@ -6,3 +6,5 @@ SQLAlchemy==1.4.27
 pymysql==1.0.2
 python-dotenv==0.21.0
 cryptography==38.0.4
+PyJWT==2.6.0
+flask-jwt-extended==4.4.4
