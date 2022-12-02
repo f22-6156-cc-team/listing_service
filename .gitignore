@@ -20,6 +20,7 @@ models/__pycache__
 .idea/dictionaries
 .idea/vcs.xml
 .idea/jsLibraryMappings.xml
+index.html
 
 # Sensitive or high-churn files:
 .idea/dataSources.ids

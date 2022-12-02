@@ -7,6 +7,7 @@ import re
 from models.Listing import ListingQueryModel
 import boto3
 import os
+from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required)
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
@@ -26,8 +27,10 @@ def convert_json(d, convert):
 # Create the Flask application object.
 application = app = Flask(__name__)
 SNS_CLIENT = boto3.client('sns', region_name='us-east-1')
-
 CORS(app)
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+jwt = JWTManager(application)
+
 def send_new_listing_notif(lid):
     # sends a notification to SNS on new listing created
     message = "New Listing {} just came up! Check it out!".format(lid)
@@ -56,6 +59,7 @@ def get_health():
 
 
 @app.route("/api/listings", methods=["GET"])
+@jwt_required()
 def get_all_listings():
     try:
         with ListingQueryModel() as lqm:
@@ -73,6 +77,7 @@ def get_all_listings():
         return rsp
 
 @app.route("/api/listings", methods=["POST"])
+@jwt_required()
 def create_listing():
     try:
         listing_info = convert_json(request.get_json(), camel_to_underscore)
@@ -91,12 +96,26 @@ def create_listing():
 
 
 @app.route("/api/listing/<lid>", methods=["GET", "PUT", "DELETE"])
+@jwt_required()
 def listing_info_id(lid):
     def get_listing_by_id(lid):
         with ListingQueryModel() as lqm:
             return lqm.get_listing_by_id(lid)
 
     try:
+        listing = get_listing_by_id(lid)
+        if listing:
+            listing_uid = listing.author_user_id
+            current_uid = get_jwt_identity()
+            # print("listing_uid : {}".format(listing_uid))
+            # print("curr_uid : {}".format(current_uid))
+            if listing_uid != current_uid:
+                return Response("Inconsistent user", status=401,
+                            content_type="text/plain")
+        else:
+            return Response("listing not found", status=404,
+                               content_type="text/plain")
+        
         if request.method == "GET":
             listing = get_listing_by_id(lid)
             if listing:
@@ -187,4 +206,4 @@ def serialize(listings):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=7001, debug=True)
+    app.run(host="localhost", port=7001, debug=True)

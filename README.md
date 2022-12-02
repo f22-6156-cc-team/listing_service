@@ -34,6 +34,7 @@ SELECT * FROM listing;
 The application should be running on `localhost:5000`.
 
 ## How to deploy
+1. Run `eb deploy`.
 Listing microservice is deployed on AWS elasticBeanstalk, and its database is using RDS.
 
 ## Some important debugging tips about deploying
