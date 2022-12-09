@@ -133,11 +133,11 @@ def listing_info_id(lid):
         elif request.method == "PUT":
             listing_info = convert_json(request.get_json(), camel_to_underscore)
             with ListingQueryModel() as lqm:
-                lqm.update_listing_by_id(lid, listing_info)
-                listing = get_listing_by_id(lid)
                 if listing.author_user_id != current_uid:
                     return Response("Inconsistent user", status=401,
                                 content_type="text/plain")
+                lqm.update_listing_by_id(lid, listing_info)
+                listing = get_listing_by_id(lid)
                 rsp = Response(
                     json.dumps(convert_json(serialize(listing),underscore_to_camel)), 
                     status=200,
